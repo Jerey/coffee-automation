@@ -15,7 +15,7 @@ constexpr int scaleData = 4;
 constexpr int scaleClk = 5;
 HX711 scale;
 constexpr float scaleCalibrationFactor = 418;
-constexpr float desiredGrams = 16.8;
+float desiredGrams = 16.8;
 unsigned long lastScaleUpdate;
 unsigned int scaleUpdateTime = 500;
 
@@ -151,6 +151,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
     scale.tare(5);
   } else if (strcmp(topic, topicInAutomatic) == 0) {
     scale.tare(5);
+    if (length > 0) {
+      desiredGrams = ((float)getIntFromPayload(payload, length) - 0.2);
+    } else {
+      desiredGrams = 16.8;
+    }
     getCurrentWeightAndPublish();
     automaticGrindingOngoing = true;
     startGrinding("automaticGrinding", 6000);
