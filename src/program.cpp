@@ -16,6 +16,9 @@ constexpr int scaleClk = 5;
 HX711 scale;
 constexpr float scaleCalibrationFactor = 418;
 float desiredGrams = 16.8;
+// Depending on the mill, it might take some time for the beans ..
+// .. to reach the scale. For this, the threshold can be set.
+const float thresholdTargetGrams = 1.0f;
 unsigned long lastScaleUpdate;
 unsigned int scaleUpdateTime = 500;
 
@@ -98,7 +101,7 @@ void publishMqttTopicAndValue(const char* topic, valueType value) {
 }
 
 float getCurrentWeightAndPublish() {
-  auto currentWeight = scale.get_units(3);
+  auto currentWeight = scale.get_units(1);
   if ((millis() - lastScaleUpdate) > scaleUpdateTime) {
     lastScaleUpdate = millis();
     snprintf(mqttBuffer, sizeof mqttBuffer, "%.1f", currentWeight);
@@ -158,7 +161,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     getCurrentWeightAndPublish();
     automaticGrindingOngoing = true;
-    startGrinding("automaticGrinding", 6000);
   } else {
     Serial.print("Unhandled topic '");
     Serial.print(topic);
@@ -215,26 +217,33 @@ void setup() {
 void loop() {
   mqttClient.loop();
   reconnectToMqttBroker();
-
   getCurrentWeightAndPublish();
-  if (grindingOngoing) {
-    if ((millis() - grindingStartedTime) > grindingTime) {
-      grindingOngoing = false;
+  if (automaticGrindingOngoing) {
+    auto currentWeight = getCurrentWeightAndPublish();
+    if ((currentWeight + thresholdTargetGrams) < desiredGrams) {
+      strcpy(mqttBuffer, "automaticGrinding");
+      publishMqttTopicAndValue(topicOutStarted, "automaticGrinding");
+      digitalWrite(relay, HIGH);
+    } else {
       digitalWrite(relay, LOW);
-      snprintf(mqttBuffer, sizeof mqttBuffer, "%d", grindingTime);
-      publishMqttTopicAndValue(topicOutFinished, grindingTime);
-    }
-    if (not grindingOngoing && automaticGrindingOngoing) {
       delay(500);
-      auto currentWeight = getCurrentWeightAndPublish();
-      if (desiredGrams <= currentWeight) {
+      currentWeight = getCurrentWeightAndPublish();
+      if (currentWeight < desiredGrams) {
+        startGrinding("automaticGrinding", 150);
+      } else {
+        digitalWrite(relay, LOW);
         automaticGrindingOngoing = false;
         snprintf(mqttBuffer, sizeof mqttBuffer, "%.1f", currentWeight);
         publishMqttTopicAndValue(topicOutAutomaticFinished, currentWeight);
-      } else {
-        startGrinding("automaticGrinding", 150);
       }
     }
+
+  } else if (grindingOngoing &&
+             (millis() - grindingStartedTime) > grindingTime) {
+    grindingOngoing = false;
+    digitalWrite(relay, LOW);
+    snprintf(mqttBuffer, sizeof mqttBuffer, "%d", grindingTime);
+    publishMqttTopicAndValue(topicOutFinished, grindingTime);
   } else {
     ArduinoOTA.handle();
   }
