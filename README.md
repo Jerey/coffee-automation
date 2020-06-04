@@ -16,7 +16,7 @@ The outcome of this project shall be able to keep the grinder on for a given tim
 
 Since I had some D1 mini laying around at home, I chose it as the brain of this project. Since I have already used **mqtt** with my [weatherstation](https://github.com/aaj07/weatherstation-client), I also decided to control the mill via mqtt topics. Further I had also played around with **Node-Red** and **Node-Red-Dashboard**, which made it really easy to quickly create a control panel for the grinder. See [the sample of my dashboard](#control-the-grinder).
 
-<img src="/documentation/Prototype.jpg" width="400">
+<img src="/documentation/FinalTouches.jpg" width="400">
 
 ### MQTT Topics
 
@@ -29,7 +29,7 @@ These are the topics used to control the mill. All start with the topic `in/`.
 - `grinder/in/start`: Starts the grinder with the time given in the payload. If no time is specified in the payload, the last set time is used.
 - `grinder/in/setGrindingTime`: Sets the time, which will be used if start is called without a time specified.
 - `grinder/in/tare`: Tares the scale.
-- `grinder/in/automatic`: Starts the grinder with the stored default value. This also **tares** the scale before starting.
+- `grinder/in/automatic`: Starts the grinder with the desired bean amount given in the payload. If no amount is specified in the payload, the last set amount is used. This also **tares** the scale before starting.
 
 #### Outgoing
 
@@ -62,6 +62,7 @@ Initially, you will have to flash this software via USB, but after that, OTA is 
 - `scaleClk`: Defines the GPIO port of the scale clock signal.
 - `scaleCalibrationFactor`: Defines the scale calibration factor. See [scale calibration](#scale-calibration).
 - `desiredGrams`: The default desired grams. This is the target weight you desire when automatically grinding.
+- `thresholdTargetGrams`: Since the distance between the grinder/bean outlet to the scale can cause the amount being to big, one can define a threshold, to prevent this.
 - `scaleUpdateTime`: The frequency of updates published for the current weight.
 - `ssidAP`: The name of the access point opened up by the D1 mini, when it has no WiFi to connect to. If you connect to the D1 mini via this access point, it will allow you to provide credentials to a WiFi of your choice within reach.
 - `passwordAP`: The password needed to connect to the access point of your D1 mini, when it is opened.
@@ -85,7 +86,7 @@ This retrieved calibration factor has to be set in the `program.cpp`.
 
 Last but not least: You will need a way to publish the MQTT commands. There are several options for this:
 
-- Command line (e.g. `mosquitto_pub -d -t grinder/in/automatic -m ""`).
+- Command line (e.g. `mosquitto_pub -d -t grinder/in/automatic -m "15"`).
 - Node Red Dash Board
 
 <img src="/documentation/Node-RED%20Dashboard.png" width="400">
