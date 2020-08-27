@@ -14,7 +14,7 @@ The outcome of this project shall be able to keep the grinder on for a given tim
 
 ## Solution
 
-Since I had some D1 mini laying around at home, I chose it as the brain of this project. Since I have already used **mqtt** with my [weatherstation](https://github.com/aaj07/weatherstation-client), I also decided to control the mill via mqtt topics. Further I had also played around with **Node-Red** and **Node-Red-Dashboard**, which made it really easy to quickly create a control panel for the grinder. See [the sample of my dashboard](#control-the-grinder).
+Since I had some D1 mini laying around at home, I chose it as the brain of this project. Since I have already used **mqtt** with my [weatherstation](https://github.com/jerey/weatherstation-client), I also decided to control the mill via mqtt topics. Further I had also played around with **Node-Red** and **Node-Red-Dashboard**, which made it really easy to quickly create a control panel for the grinder. See [the sample of my dashboard](#control-the-grinder).
 
 <img src="/documentation/FinalTouches.jpg" width="400">
 
