@@ -2,13 +2,13 @@
 
 [*] --> OFF
 
-OFF --> Timebased : timeBasedGrinding(..)
-OFF --> Weightbased : automaticGrinding(..)
-
 state ON {
   state Timebased
   state Weightbased
 }
+
+OFF --> Timebased : timeBasedGrinding(..)
+OFF --> Weightbased : automaticGrinding(..)
 
 Timebased --> OFF : TIME reached
 Weightbased --> OFF : WEIGHT reached

@@ -32,29 +32,26 @@ Anton Jerey
 
 <img src="FinalTouches.jpg" width="500">
 
-----
-
-## Node-RED Dashboard
-
-<img src="Node-RED Dashboard.png" width="700">
-
 ---
 
 ## Introduction
 
 - I like coffee - Lelit Mara X
-- Beans weighed by hand
-  - Grinders often offer time-based grinding
-  - Sometimes even weight-based
+- Good Espresso
+  - Coarseness, Timing, Amount, ...
+  - Input / Output Ratio
+- Bean amount important
+  - Time-based grinders
+  - Weight-based grinders
   - ... mine offered neither
 
 ----
 
 ### What is this project?
 
-- Automates the grinding of coffee beans
+- Automates the weighing of the ground coffee
 - Can be added to any coffee grinder*
-- Provides precise grinding control (time-based & weight-based).
+- Provides precise grinding control (time-based & weight-based)
 - Flexible UI due to MQTT
 
 > \* with an on/off switch
@@ -82,7 +79,7 @@ Anton Jerey
 
 - **D1 Mini (ESP8266)** - Controller of the scale and relay
 - **Relay Module** - Controls the power of the grinder
-- **Load Cell + HX711 (Optional)** - Measures the ground coffee
+- **Load Cell + HX711** - Measures the ground coffee
 
 ----
 
@@ -129,7 +126,7 @@ void callback(char* topic, byte*, unsigned int) {
 - Uses GPIO pins to control a relay
 - Relay turning the grinder on and off
 
-```cpp[|5-8|9]
+```cpp[|3|5-8|9]
 void GrindingController::startGrinding(
                   unsigned int timeToGrind) {
   auto startingTime = millis();
@@ -157,44 +154,7 @@ float GrindingController::getCurrentWeight() {
 
 ----
 
-### Automation Logic
-
-- Weight-based
-  - Tares scale before grinding
-  - Stops when weight target is met
-- Time-based
-  - Grinds for a given time
-
-----
-
-### Automation Logic
-
-```cpp[|3,4|6-9|11,12|14-16|19]
-void GrindingController::automaticGrinding(
-        float desiredGrams) {
-  mqttGrinder.publishMqttTopicAndValue(/* started */);
-  scale.tare(5);
-
-  while ((getCurrentWeight() + thresholdTargetGrams) 
-          < desiredGrams) {
-    digitalWrite(relay, HIGH);
-  }
-
-  digitalWrite(relay, LOW);
-  delay(500);
-
-  while (getCurrentWeight() < desiredGrams) {
-    startGrinding(150);
-    delay(500);
-  }
-
-  mqttGrinder.publishMqttTopicAndValue(/* finished */);
-}
-```
-
-----
-
-### Automation Logic
+### [Weight-based Grinding](https://github.com/Jerey/coffee-automation/blob/f62142d689d115cbf7541daf6f7284798d2f38ee/lib/CoffeeAutomation/GrindingController.cpp#L78-L102)
 
 ![](sequence_automatic.png)
 
@@ -226,3 +186,5 @@ void GrindingController::automaticGrinding(
 ---
 
 ## Q & A
+
+[Optional Demo](https://youtube.com/shorts/JVY1KFqSwoU?feature=share)
