@@ -8,7 +8,7 @@
 constexpr const char* hostName = "CoffeeGrinder";
 
 //----------- In/Out -----------
-constexpr int relay = 15;
+constexpr int relay = LED_BUILTIN;
 
 //----------- Scale -----------
 constexpr int scaleData = 4;
