@@ -1,0 +1,16 @@
+@startuml
+
+[*] --> OFF
+
+OFF --> Timebased : timeBasedGrinding(..)
+OFF --> Weightbased : automaticGrinding(..)
+
+state ON {
+  state Timebased
+  state Weightbased
+}
+
+Timebased --> OFF : TIME reached
+Weightbased --> OFF : WEIGHT reached
+
+@enduml

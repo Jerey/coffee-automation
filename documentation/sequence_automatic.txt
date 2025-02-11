@@ -1,0 +1,22 @@
+@startuml
+actor User
+participant "MQTT Broker" as Broker
+participant "GrinderController" as Controller
+participant "Scale" as Scale
+
+User -> Broker : grinder/in/automatic
+Broker -> Controller : grinder/in/automatic
+Controller -> Broker : grinder/out/started
+Controller -> Scale : tare()
+Controller -> Controller : startGrinding()
+
+loop every 500ms
+    Controller -> Broker : grinder/out/weight
+end
+
+alt Weight reached
+    Controller -> Controller : stopGrinding()
+    Controller -> Broker : grinder/out/finished
+end
+
+@enduml

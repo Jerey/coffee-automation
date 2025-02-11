@@ -16,11 +16,12 @@ theme: solarized
         <li>Automation of a coffee grinder</li>
         <li>C++ / ESP8266 Wi-Fi module</li>
         <li>Created in 2020</li>
-        <li><a href="https://github.com/Jerey/coffee-automation">Github</a></li>
+        <li><a href="https://github.com/Jerey/coffee-automation">GitHub</a></li>
       </ul>
     </div>
   </div>
 </div>
+Anton Jerey
 
 ----
 
@@ -33,7 +34,7 @@ theme: solarized
 
 ----
 
-## Node RED Dashboard
+## Node-RED Dashboard
 
 <img src="Node-RED Dashboard.png" width="700">
 
@@ -41,11 +42,11 @@ theme: solarized
 
 ## Introduction
 
-- I like coffee
+- I like coffee - Lelit Mara X
 - Beans weighed by hand
-- Grinders often offer time based grinding
-- Sometimes even weight based
-- ... mine offered neither
+  - Grinders often offer time-based grinding
+  - Sometimes even weight-based
+  - ... mine offered neither
 
 ----
 
@@ -54,7 +55,7 @@ theme: solarized
 - Automates the grinding of coffee beans
 - Can be added to any coffee grinder*
 - Provides precise grinding control (time-based & weight-based).
-- Flexible UI due to mqtt
+- Flexible UI due to MQTT
 
 > \* with an on/off switch
 
@@ -65,7 +66,7 @@ theme: solarized
 - Same amount improves repeatability
 - Reduces manual effort
 - Almost "removes" the grinding step
-- Can be integrated in IoT
+- Can be integrated into IoT
 
 ---
 
@@ -90,9 +91,9 @@ theme: solarized
 - **ESP8266 Firmware (C++)** - Controls the automation logic
 - **MQTT Protocol**
   - Common IoT protocol -> Great number of available integrations
-  - Quality of Service levels
-  - Publish and subscribe model
   - Broker is required
+  - Publish and subscribe model
+  - Quality of Service levels
   <!-- - **Node-RED Dashboard (Optional)** - Web-based user interface
   - **CLI Tool Alternative (Optional)** - `mosquitto_pub -t grinder/in/start -n`
   - **...** -->
@@ -101,7 +102,8 @@ theme: solarized
 
 ## Key Parts of the Codebase
 
-<!-- TODO: Add an UML diagram here? -->
+![](statemachine.png)
+
 ----
 
 ### MQTT Communication
@@ -144,8 +146,8 @@ void GrindingController::startGrinding(
 
 ### Load Cell Integration
 
-- Reads weight from HX711 sensor
-- Sensor placed under the outlet
+- Reads weight from HX711 ADC
+- Load cell placed under the outlet
 
 ```cpp[|2]
 float GrindingController::getCurrentWeight() {
@@ -157,10 +159,10 @@ float GrindingController::getCurrentWeight() {
 
 ### Automation Logic
 
-- Weight based
+- Weight-based
   - Tares scale before grinding
   - Stops when weight target is met
-- Time based
+- Time-based
   - Grinds for a given time
 
 ----
@@ -189,6 +191,12 @@ void GrindingController::automaticGrinding(
   mqttGrinder.publishMqttTopicAndValue(/* finished */);
 }
 ```
+
+----
+
+### Automation Logic
+
+![](sequence_automatic.png)
 
 ---
 
