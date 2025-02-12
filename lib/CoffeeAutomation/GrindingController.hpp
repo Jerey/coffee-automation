@@ -33,11 +33,28 @@ class GrindingController {
   unsigned int scaleUpdateTime = 500;
 
   /**
-   * @brief MQTT Callback
+   * @brief A callback function when MQTT messages are received.
+   *
+   * @param topic The topic of the message.
+   * @param payload The payload of the message.
+   * @param length The length of the payload.
    */
   void callback(char* topic, byte* payload, unsigned int length);
 
+  /**
+   * @brief Weight based grinding. The grinder will grind until the desired
+   * weight is reached.
+   *
+   * @param desiredGrams The desired weight in grams.
+   */
   void automaticGrinding(float desiredGrams);
+
+  /**
+   * @brief Time based grinding. The grinder will grind for the given time.
+   *
+   * @param timeToGrind Time in milliseconds to grind.
+   */
+  void timebasedGrinding(unsigned int timeToGrind);
 
   float getCurrentWeight();
 };

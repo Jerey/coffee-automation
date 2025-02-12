@@ -19,11 +19,16 @@ void GrindingController::setGrindingTime(unsigned int timeToGrind) {
 
 void GrindingController::startGrinding(const char* startTriggerOrigin,
                                        unsigned int timeToGrind) {
-  grindingOngoing = true;
-  grindingStartedTime = millis();
-  setGrindingTime(timeToGrind);
+  auto startingTime = millis();
   mqttGrinder.publishMqttTopicAndValue(topicOutStarted, startTriggerOrigin);
-  digitalWrite(relay, HIGH);
+
+  while (millis() - startingTime < timeToGrind) {
+    digitalWrite(relay, HIGH);
+    getCurrentWeightAndPublish();
+    mqttGrinder.loop();
+  }
+  digitalWrite(relay, LOW);
+  mqttGrinder.publishMqttTopicAndValue(topicOutFinished, timeToGrind);
 }
 
 float GrindingController::getCurrentWeight() {
@@ -82,8 +87,8 @@ void GrindingController::automaticGrinding(float desiredGrams) {
   // Start with taring the scale
   scale.tare(5);
 
-  // Approach the desired weight with a threshold (e.g. travel distance between
-  // grinder and scale).
+  // Approach the desired weight with a threshold (e.g. travel distance
+  // between grinder and scale).
   while ((getCurrentWeightAndPublish() + thresholdTargetGrams) < desiredGrams) {
     digitalWrite(relay, HIGH);
     mqttGrinder.loop();
@@ -122,12 +127,4 @@ void GrindingController::setup() {
 void GrindingController::loop() {
   mqttGrinder.loop();
   getCurrentWeightAndPublish();
-
-  if (grindingOngoing && (millis() - grindingStartedTime) > grindingTime) {
-    grindingOngoing = false;
-    digitalWrite(relay, LOW);
-    mqttGrinder.publishMqttTopicAndValue(topicOutFinished, grindingTime);
-  } else {
-    // ArduinoOTA.handle();
-  }
 }
