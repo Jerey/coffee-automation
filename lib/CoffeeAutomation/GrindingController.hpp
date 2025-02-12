@@ -4,6 +4,14 @@
 #include <HX711.h>
 #include <MqttGrinder.hpp>
 
+/**
+ * @brief The GrindingController class is responsible for controlling the
+ * grinder.
+ *
+ * It listens to MQTT messages and controls the grinder accordingly.
+ * Since it is only controllable via MQTT, only the setup and loop functions are
+ * exposed.
+ */
 class GrindingController {
  public:
   void setup();
@@ -11,7 +19,7 @@ class GrindingController {
 
  private:
   MqttGrinder mqttGrinder;
-  unsigned int grindingTime;
+  unsigned int grindingTime = 0;
   HX711 scale;
   unsigned long lastScaleUpdate;
 
@@ -41,12 +49,37 @@ class GrindingController {
    */
   void startGrinding(unsigned int timeToGrind);
 
+  /**
+   * @brief Set the grinding time.
+   *
+   * This will then be used, if the grinder is started without a time.
+   *
+   * @param timeToGrind Time in milliseconds to grind.
+   */
   void setGrindingTime(unsigned int timeToGrind);
 
+  /**
+   * @brief Time based grinding. The grinder will grind for the given time.
+   *
+   * MQTT messages are sent for the start and finish.
+   *
+   * @param startTriggerOrigin Who triggered the start - part of a MQTT message.
+   * @param timeToGrind Time in milliseconds to grind.
+   */
   void timeBasedGrinding(const char* startTriggerOrigin,
                          unsigned int timeToGrind);
 
+  /**
+   * @brief Get the current weight from the scale and publish it.
+   *
+   * @return The current weight in grams.
+   */
   float getCurrentWeightAndPublish();
 
+  /**
+   * @brief Get the current weight from the scale.
+   *
+   * @return The current weight in grams.
+   */
   float getCurrentWeight();
 };
