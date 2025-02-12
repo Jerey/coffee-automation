@@ -26,6 +26,10 @@ void GrindingController::startGrinding(const char* startTriggerOrigin,
   digitalWrite(relay, HIGH);
 }
 
+float GrindingController::getCurrentWeight() {
+  return scale.get_units(1);
+}
+
 float GrindingController::getCurrentWeightAndPublish() {
   auto currentWeight = scale.get_units(1);
   if ((millis() - lastScaleUpdate) > scaleUpdateTime) {
@@ -61,19 +65,46 @@ void GrindingController::callback(char* topic,
   } else if (strcmp(topic, topicInTare) == 0) {
     scale.tare(5);
   } else if (strcmp(topic, topicInAutomatic) == 0) {
-    scale.tare(5);
     if (length > 0) {
-      desiredGrams = ((float)getIntFromPayload(payload, length) - 0.2);
+      automaticGrinding((float)getIntFromPayload(payload, length) - 0.2);
     } else {
-      desiredGrams = 16.8;
+      automaticGrinding(16.8);  // TODO: Magic number.
     }
-    getCurrentWeightAndPublish();
-    automaticGrindingOngoing = true;
   } else {
     Serial.print("Unhandled topic '");
     Serial.print(topic);
     Serial.println("'!");
   }
+}
+
+void GrindingController::automaticGrinding(float desiredGrams) {
+  mqttGrinder.publishMqttTopicAndValue(topicOutStarted, "automaticGrinding");
+  // Start with taring the scale
+  scale.tare(5);
+
+  // Approach the desired weight with a threshold (e.g. travel distance between
+  // grinder and scale).
+  while ((getCurrentWeightAndPublish() + thresholdTargetGrams) < desiredGrams) {
+    digitalWrite(relay, HIGH);
+    mqttGrinder.loop();
+  }
+
+  // Stop the grinder and wait for the beans to fall down
+  digitalWrite(relay, LOW);
+  delay(500);
+  mqttGrinder.loop();
+
+  // Now lets slowly approach the desired weight
+  while (getCurrentWeightAndPublish() < desiredGrams) {
+    startGrinding("automaticGrinding", 150);
+    mqttGrinder.loop();  // TODO: Actually the mqttGrinder should handle this.
+  }
+
+  // TODO: Is this really necessary? Why doesn't start grinding take care of
+  // this?
+  digitalWrite(relay, LOW);
+  mqttGrinder.publishMqttTopicAndValue(topicOutAutomaticFinished,
+                                       getCurrentWeight());
 }
 
 void GrindingController::setup() {
@@ -92,28 +123,7 @@ void GrindingController::loop() {
   mqttGrinder.loop();
   getCurrentWeightAndPublish();
 
-  if (automaticGrindingOngoing) {
-    auto currentWeight = getCurrentWeightAndPublish();
-    if ((currentWeight + thresholdTargetGrams) < desiredGrams) {
-      mqttGrinder.publishMqttTopicAndValue(topicOutStarted,
-                                           "automaticGrinding");
-      digitalWrite(relay, HIGH);
-    } else {
-      digitalWrite(relay, LOW);
-      delay(500);
-      currentWeight = getCurrentWeightAndPublish();
-      if (currentWeight < desiredGrams) {
-        startGrinding("automaticGrinding", 150);
-      } else {
-        digitalWrite(relay, LOW);
-        automaticGrindingOngoing = false;
-        mqttGrinder.publishMqttTopicAndValue(topicOutAutomaticFinished,
-                                             currentWeight);
-      }
-    }
-
-  } else if (grindingOngoing &&
-             (millis() - grindingStartedTime) > grindingTime) {
+  if (grindingOngoing && (millis() - grindingStartedTime) > grindingTime) {
     grindingOngoing = false;
     digitalWrite(relay, LOW);
     mqttGrinder.publishMqttTopicAndValue(topicOutFinished, grindingTime);

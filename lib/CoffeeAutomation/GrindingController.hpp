@@ -25,7 +25,7 @@ class GrindingController {
   bool automaticGrindingOngoing = false;
 
   HX711 scale;
-  float desiredGrams = 16.8;
+
   // Depending on the mill, it might take some time for the beans ..
   // .. to reach the scale. For this, the threshold can be set.
   const float thresholdTargetGrams = 1.0f;
@@ -36,4 +36,8 @@ class GrindingController {
    * @brief MQTT Callback
    */
   void callback(char* topic, byte* payload, unsigned int length);
+
+  void automaticGrinding(float desiredGrams);
+
+  float getCurrentWeight();
 };
