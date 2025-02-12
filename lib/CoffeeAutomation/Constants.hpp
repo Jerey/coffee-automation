@@ -22,6 +22,14 @@ static constexpr float thresholdTargetGrams = 1.0f;
 // How often a scale update can happen in ms.
 static constexpr unsigned int scaleUpdateTime = 500;
 
+// The pin for the relay to control the grinder.
+constexpr int relay = 15;
+
+// Scale Configuration
+constexpr int scaleData = 4;
+constexpr int scaleClk = 5;
+constexpr float scaleCalibrationFactor = 418;
+
 // MQTT topics
 static constexpr const char* topicInSetGrindingTime =
     "grinder/in/setGrindingTime";

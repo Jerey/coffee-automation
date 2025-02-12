@@ -1,14 +1,6 @@
 #include <Constants.hpp>
 #include <GrindingController.hpp>
 
-//----------- In/Out -----------
-constexpr int relay = LED_BUILTIN;
-
-//----------- Scale -----------
-constexpr int scaleData = 4;
-constexpr int scaleClk = 5;
-constexpr float scaleCalibrationFactor = 418;
-
 void GrindingController::setGrindingTime(unsigned int timeToGrind) {
   grindingTime = timeToGrind;
   mqttGrinder.publishMqttTopicAndValue(topicOutCurrentSetGrindingTime,
@@ -111,8 +103,7 @@ void GrindingController::automaticGrinding(float desiredGrams) {
 
 void GrindingController::setup() {
   pinMode(relay, OUTPUT);
-  digitalWrite(
-      relay, LOW);  // TODO: This can be removed when a real relay is attached.
+  digitalWrite(relay, LOW);
   mqttGrinder.setup(std::bind(&GrindingController::callback, this,
                               std::placeholders::_1, std::placeholders::_2,
                               std::placeholders::_3));
