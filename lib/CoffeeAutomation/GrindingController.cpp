@@ -25,7 +25,6 @@ void GrindingController::startGrinding(const char* startTriggerOrigin,
   while (millis() - startingTime < timeToGrind) {
     digitalWrite(relay, HIGH);
     getCurrentWeightAndPublish();
-    mqttGrinder.loop();
   }
   digitalWrite(relay, LOW);
   mqttGrinder.publishMqttTopicAndValue(topicOutFinished, timeToGrind);
@@ -91,30 +90,25 @@ void GrindingController::automaticGrinding(float desiredGrams) {
   // between grinder and scale).
   while ((getCurrentWeightAndPublish() + thresholdTargetGrams) < desiredGrams) {
     digitalWrite(relay, HIGH);
-    mqttGrinder.loop();
   }
 
   // Stop the grinder and wait for the beans to fall down
   digitalWrite(relay, LOW);
   delay(500);
-  mqttGrinder.loop();
 
   // Now lets slowly approach the desired weight
   while (getCurrentWeightAndPublish() < desiredGrams) {
     startGrinding("automaticGrinding", 150);
-    mqttGrinder.loop();  // TODO: Actually the mqttGrinder should handle this.
   }
 
-  // TODO: Is this really necessary? Why doesn't start grinding take care of
-  // this?
-  digitalWrite(relay, LOW);
   mqttGrinder.publishMqttTopicAndValue(topicOutAutomaticFinished,
                                        getCurrentWeight());
 }
 
 void GrindingController::setup() {
   pinMode(relay, OUTPUT);
-  digitalWrite(relay, LOW);
+  digitalWrite(
+      relay, LOW);  // TODO: This can be removed when a real relay is attached.
   mqttGrinder.setup(std::bind(&GrindingController::callback, this,
                               std::placeholders::_1, std::placeholders::_2,
                               std::placeholders::_3));
