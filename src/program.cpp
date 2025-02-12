@@ -5,22 +5,34 @@
 #include <GrindingController.hpp>
 #include <MqttGrinder.hpp>
 
-//----------- AP -----------
-constexpr const char* ssidAP = "AutoConnectAP";
-constexpr const char* passwordAP = "password";
-
-//----------- MQTT -----------
 GrindingController grinder;
 
 /**
- * Function to connect to a wifi. It waits until a connection is established.
+ * @brief Connect to WiFi using WiFiManager
+ *
+ * Typically, it will automatically reconnect to the previously configured wifi.
+ * In case it can't connect, it will start an access point with the given
+ * ssidAP. The user can then connect to this access point and configure the
+ * wifi.
+ *
+ * If the user doesn't connect to the access point within the given time, the
+ * ESP will restart. Possibly, the wifi was not available at the moment.
+ *
  */
 void connectToWifi() {
   WiFiManager wifiManager;
   wifiManager.setBreakAfterConfig(true);
+  wifiManager.setConfigPortalTimeout(configPortalTimeout);
+  wifiManager.setConfigPortalTimeoutCallback([] { ESP.restart(); });
   wifiManager.autoConnect(ssidAP, passwordAP);
 }
 
+/**
+ * @brief Setup OTA
+ *
+ * Setup OTA with the given hostname. The hostname is used to identify the ESP
+ * in the network.
+ */
 void setupOTA() {
   ArduinoOTA.setHostname(hostName);
   ArduinoOTA.onStart([]() {
@@ -68,5 +80,7 @@ void setup() {
 
 void loop() {
   grinder.loop();
+  // Since the grinder will be blocking, while grinding, OTA cannot happen while
+  // the grinder is grinding.
   ArduinoOTA.handle();
 }
