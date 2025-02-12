@@ -17,16 +17,20 @@ void GrindingController::setGrindingTime(unsigned int timeToGrind) {
                                        grindingTime);
 }
 
-void GrindingController::startGrinding(const char* startTriggerOrigin,
-                                       unsigned int timeToGrind) {
+void GrindingController::startGrinding(unsigned int timeToGrind) {
   auto startingTime = millis();
-  mqttGrinder.publishMqttTopicAndValue(topicOutStarted, startTriggerOrigin);
 
   while (millis() - startingTime < timeToGrind) {
     digitalWrite(relay, HIGH);
     getCurrentWeightAndPublish();
   }
   digitalWrite(relay, LOW);
+}
+
+void GrindingController::timeBasedGrinding(const char* startTriggerOrigin,
+                                           unsigned int timeToGrind) {
+  mqttGrinder.publishMqttTopicAndValue(topicOutStarted, startTriggerOrigin);
+  startGrinding(timeToGrind);
   mqttGrinder.publishMqttTopicAndValue(topicOutFinished, timeToGrind);
 }
 
@@ -62,9 +66,9 @@ void GrindingController::callback(char* topic,
     Serial.println(grindingTime);
   } else if (strcmp(topic, topicInStart) == 0) {
     if (length > 0) {
-      startGrinding("callbackWithTime", getIntFromPayload(payload, length));
+      timeBasedGrinding("callbackWithTime", getIntFromPayload(payload, length));
     } else {
-      startGrinding("callbackWithoutTime", grindingTime);
+      timeBasedGrinding("callbackWithoutTime", grindingTime);
     }
   } else if (strcmp(topic, topicInTare) == 0) {
     scale.tare(5);
@@ -98,7 +102,8 @@ void GrindingController::automaticGrinding(float desiredGrams) {
 
   // Now lets slowly approach the desired weight
   while (getCurrentWeightAndPublish() < desiredGrams) {
-    startGrinding("automaticGrinding", 150);
+    startGrinding(150);
+    delay(500);
   }
 
   mqttGrinder.publishMqttTopicAndValue(topicOutAutomaticFinished,

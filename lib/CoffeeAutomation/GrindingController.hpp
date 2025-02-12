@@ -7,10 +7,6 @@
 class GrindingController {
  public:
   GrindingController();
-  void setGrindingTime(unsigned int timeToGrind);
-
-  void startGrinding(const char* startTriggerOrigin, unsigned int timeToGrind);
-  float getCurrentWeightAndPublish();
 
   void setup();
   void loop();
@@ -52,9 +48,18 @@ class GrindingController {
   /**
    * @brief Time based grinding. The grinder will grind for the given time.
    *
+   * No MQTT messages or updates are sent.
+   *
    * @param timeToGrind Time in milliseconds to grind.
    */
-  void timebasedGrinding(unsigned int timeToGrind);
+  void startGrinding(unsigned int timeToGrind);
+
+  void setGrindingTime(unsigned int timeToGrind);
+
+  void timeBasedGrinding(const char* startTriggerOrigin,
+                         unsigned int timeToGrind);
+
+  float getCurrentWeightAndPublish();
 
   float getCurrentWeight();
 };
