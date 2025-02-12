@@ -16,3 +16,8 @@ static constexpr const char* topicOutCurrentWeight = "grinder/out/weight";
 
 static constexpr const char* mqttBroker = "192.168.178.100";
 static constexpr const char* hostName = "CoffeeGrinder";
+
+// Depending on the mill, it might take some time for the beans ..
+// .. to reach the scale. For this, the threshold can be set.
+static constexpr float thresholdTargetGrams = 1.0f;
+static constexpr unsigned int scaleUpdateTime = 500;

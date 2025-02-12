@@ -9,8 +9,6 @@ constexpr int scaleData = 4;
 constexpr int scaleClk = 5;
 constexpr float scaleCalibrationFactor = 418;
 
-GrindingController::GrindingController() : mqttGrinder() {}
-
 void GrindingController::setGrindingTime(unsigned int timeToGrind) {
   grindingTime = timeToGrind;
   mqttGrinder.publishMqttTopicAndValue(topicOutCurrentSetGrindingTime,
@@ -106,6 +104,7 @@ void GrindingController::automaticGrinding(float desiredGrams) {
     delay(500);
   }
 
+  // Publish the final weight
   mqttGrinder.publishMqttTopicAndValue(topicOutAutomaticFinished,
                                        getCurrentWeight());
 }

@@ -6,27 +6,14 @@
 
 class GrindingController {
  public:
-  GrindingController();
-
   void setup();
   void loop();
 
  private:
   MqttGrinder mqttGrinder;
   unsigned int grindingTime;
-  unsigned long grindingStartedTime;
-
-  //----------- Grinding Flags -----------
-  bool grindingOngoing = false;
-  bool automaticGrindingOngoing = false;
-
   HX711 scale;
-
-  // Depending on the mill, it might take some time for the beans ..
-  // .. to reach the scale. For this, the threshold can be set.
-  const float thresholdTargetGrams = 1.0f;
   unsigned long lastScaleUpdate;
-  unsigned int scaleUpdateTime = 500;
 
   /**
    * @brief A callback function when MQTT messages are received.
