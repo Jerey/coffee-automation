@@ -68,4 +68,5 @@ void setup() {
 
 void loop() {
   grinder.loop();
+  ArduinoOTA.handle();
 }
