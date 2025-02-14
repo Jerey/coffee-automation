@@ -2,28 +2,34 @@
 title: Coffee Automation
 theme: solarized
 ---
+<!-- https://jerey.at/coffee-automation -->
 
 # Coffee Automation
 
-- Coffee Grinder Automation
-- C++
-- D1 mini / ESP8266 Wi-Fi module
-- Scale
-- MQTT protocol
-- Created in 2020
-- [Github](https://github.com/Jerey/coffee-automation)
+<div style="display: table; width: 100%;">
+  <div style="display: table-row">
+    <div style="display: table-cell; vertical-align: middle;">
+      <img src="CoffeeGrinderAutomation.JPG" height="350">
+    </div>
+    <div style="display: table-cell; vertical-align: middle;">
+      <ul>
+        <li>Automation of a coffee grinder</li>
+        <li>C++ / ESP8266 Wi-Fi module</li>
+        <li>Created in 2020</li>
+        <li><a href="https://github.com/Jerey/coffee-automation">Github</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
 
 ----
 
-## Grinder Impression
+## Automation Options
 
-<img src="CoffeeGrinderAutomation.JPG" height="500">
+- **Time-Based Grinding** - Runs for a set duration.
+- **Weight-Based Grinding** - Stops when target weight is reached.
 
-----
-
-## Grinder Impression
-
-<img src="FinalTouches.jpg" width="700">
+<img src="FinalTouches.jpg" width="500">
 
 ----
 
@@ -73,7 +79,7 @@ theme: solarized
 
 ### Hardware Components
 
-- **D1 Mini (ESP8266)** - Controller of the scale and grinder
+- **D1 Mini (ESP8266)** - Controller of the scale and relay
 - **Relay Module** - Controls the power of the grinder
 - **Load Cell + HX711 (Optional)** - Measures the ground coffee
 
@@ -81,35 +87,27 @@ theme: solarized
 
 ### Software & Communication
 
-- **ESP8266 Firmware (C++)** - Controls automation logic
-- **MQTT Protocol** - Handles external communication
-  - **Node-RED Dashboard (Optional)** - Web-based user interface
+- **ESP8266 Firmware (C++)** - Controls the automation logic
+- **MQTT Protocol**
+  - Common IoT protocol -> Great number of available integrations
+  - Quality of Service levels
+  - Publish and subscribe model
+  - Broker is required
+  <!-- - **Node-RED Dashboard (Optional)** - Web-based user interface
   - **CLI Tool Alternative (Optional)** - `mosquitto_pub -t grinder/in/start -n`
-  - **...**
-
----
-
-## Key Functionalities
-
-- **Time-Based Grinding** - Runs for a set duration.
-- **Weight-Based Grinding** - Stops when target weight is reached.
-- **MQTT Command System:**
-  - Start/Stop Grinding
-  - Set Grinding Time
-  - Tare Scale
-  - Automatic Mode
+  - **...** -->
 
 ---
 
 ## Key Parts of the Codebase
 
+<!-- TODO: Add an UML diagram here? -->
 ----
 
 ### MQTT Communication
 
-- Commonly used protocol for IoT
 - Separates the user interface from the controller
-- A MQTT broker is required
+- Subscribed topics end up here:
 
 ```cpp[|4,5]
 // byte and uint used for parameter communication
@@ -160,11 +158,10 @@ float GrindingController::getCurrentWeight() {
 ### Automation Logic
 
 - Weight based
-  - Tares scale before grinding.
-  - Stops when weight target is met.
+  - Tares scale before grinding
+  - Stops when weight target is met
 - Time based
-  - Uses current milliseconds
-  - When the target time is reached, stops
+  - Grinds for a given time
 
 ----
 
