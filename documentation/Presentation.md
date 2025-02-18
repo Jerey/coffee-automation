@@ -171,6 +171,7 @@ float GrindingController::getCurrentWeight() {
 - **Testing**
   - PlatformIO (Development environment)
   - Mostly manual
+- **Coffee Consumption**
 
 ---
 
